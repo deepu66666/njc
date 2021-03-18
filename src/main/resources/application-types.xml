@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="input" format="csv">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type input = Array<{|  id: Number,   name: String,   salary: Number,   phone: String,   city: String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="output" format="json">
+      <types:shape format="weave" example="examples/output-2.json"><![CDATA[%dw 2.0
+
+type output = Array<{|  id: Number {"typeId": "int"},   name: String,   salary: Number {"typeId": "int"},   phone: Number {"typeId": "int"},   city: String|}> {"example": "[{\\\"id\\\":123,\\\"name\\\":\\\"man\\\",\\\"salary\\\":234,\\\"phone\\\":8973329,\\\"city\\\":\\\"fcrr\\\"},{\\\"id\\\":143,\\\"name\\\":\\\"ma\\\",\\\"salary\\\":23,\\\"phone\\\":897329,\\\"city\\\":\\\"fcr\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="input1" format="csv">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type input1 = Array<{|  id: Number,   name: String,   salary: String,   phone: String,   city: String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+    <types:type name="output1" format="json">
+      <types:shape format="weave" example="examples/output-3.json"><![CDATA[%dw 2.0
+
+type output1 = Array<{|  id: Number {"typeId": "int"},   name: String,   salary: Number {"typeId": "int"},   phone: Number {"typeId": "int"},   city: String|}> {"example": "[{\\\"id\\\":123,\\\"name\\\":\\\"man\\\",\\\"salary\\\":234,\\\"phone\\\":8973329,\\\"city\\\":\\\"fcrr\\\"},{\\\"id\\\":143,\\\"name\\\":\\\"ma\\\",\\\"salary\\\":23,\\\"phone\\\":897329,\\\"city\\\":\\\"fcr\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#4238c948-c4b6-40f3-a9cb-b7f11a6e803c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="input1"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output1"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

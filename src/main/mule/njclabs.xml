@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e0ba03f6-fec1-4cb2-8119-f24f36b6f064" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="344a6bb2-95c5-465f-b7f1-653d6059574f" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="admin" database="sys" />
+	</db:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="38925bad-6630-4840-b782-c360c9f7a798" />
+	<flow name="njclabsFlow" doc:id="2a2cff4b-3299-497c-ae2e-1d1ce22f21d9" >
+		<http:listener doc:name="Listener" doc:id="b2ed6e36-9150-41a5-80df-8c4af430843d" config-ref="HTTP_Listener_config" path="/insertanddelete"/>
+		<file:read doc:name="Read" doc:id="97f307f2-3b06-40d6-b1ef-6ed9b931e2b7" config-ref="File_Config" path="C:\Users\Lokesh\Desktop\njc.csv"/>
+		<ee:transform doc:name="Transform Message" doc:id="4238c948-c4b6-40f3-a9cb-b7f11a6e803c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	id: payload01.id,
+	name: payload01.name,
+	salary: payload01.salary as Number,
+	phone: payload01.phone as Number,
+	city: payload01.city
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="9469a373-dc23-46b0-bfb3-f586aca20639" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO sys.njc(id,name,salary,phone,city) VALUES (:id,:name,:salary,:phone,:city)
+]]></db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="40b9264b-95f0-4bfa-b0c5-15f2a8a3b73d" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="28b2ff50-f046-4658-8bb0-b7bef24e7111" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM sys.njc]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="a89f0c4e-c74b-48a9-91f6-43a7ac2d77ae" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
